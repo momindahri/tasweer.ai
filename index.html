@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasweer Ai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai@1.0.0"
+        }
+      }
+    </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    <div id="lightbox" class="lightbox">
+      <button class="lightbox-close" aria-label="Close image viewer">&times;</button>
+      <button class="lightbox-nav prev" aria-label="Previous image">&#10094;</button>
+      <button class="lightbox-nav next" aria-label="Next image">&#10095;</button>
+      <div class="lightbox-content">
+        <img src="" alt="Full-size generated image" class="lightbox-image">
+        <a href="#" class="lightbox-download" download>Download Image</a>
+      </div>
+    </div>
+
+    <main>
+        <aside id="controls-panel">
+            <div class="panel-header">
+                <h1>Tasweer Ai</h1>
+                <p class="description">Generate images using Google's most advanced text-to-image models.</p>
+            </div>
+            
+            <div class="tabs">
+              <div class="tab-slider"></div>
+              <button class="tab-button active" data-tab="controls-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                <span>Controls</span>
+              </button>
+              <button class="tab-button" data-tab="history-content">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>History</span>
+              </button>
+            </div>
+
+            <div id="controls-content" class="tab-content active">
+              <div id="controls">
+                <div class="prompt-control-group">
+                  <div id="prompt-input-wrapper" class="prompt-input-wrapper">
+                    <textarea id="prompt-input" placeholder=" " rows="5" aria-label="Image generation prompt"></textarea>
+                    <label for="prompt-input" class="prompt-label">Prompt</label>
+                    <button id="clear-prompt-button" class="clear-prompt-button" aria-label="Clear prompt" title="Clear prompt">&times;</button>
+                    <div id="char-counter" class="char-counter">0</div>
+                  </div>
+                </div>
+
+                <details class="control-accordion" open>
+                  <summary class="control-label">Style & Creativity</summary>
+                  <div class="accordion-content">
+                    <div class="control-group">
+                      <label for="style-preset-select" class="control-label-small">Style Preset</label>
+                      <select id="style-preset-select" aria-label="Select style preset">
+                          <option value="none" selected>Default (No Style)</option>
+                          <option value="photorealistic">Photorealistic</option>
+                          <option value="anime">Anime</option>
+                          <option value="digital-art">Digital Art</option>
+                          <option value="watercolor">Watercolor</option>
+                      </select>
+                    </div>
+                    <div class="control-group">
+                      <div class="label-wrapper">
+                        <label for="creativity-slider" class="control-label-small">Creativity Strength</label>
+                        <output for="creativity-slider" id="creativity-value">70</output>
+                      </div>
+                      <input type="range" id="creativity-slider" min="0" max="100" step="10" value="70" aria-label="Creativity strength slider">
+                    </div>
+                  </div>
+                </details>
+
+                <details class="control-accordion" open>
+                  <summary class="control-label">Output Settings</summary>
+                   <div class="accordion-content">
+                      <div class="control-group">
+                        <label class="control-label-small">Aspect Ratio</label>
+                        <div id="aspect-ratio-selector" class="visual-selector">
+                           <button class="visual-selector-button active" data-value="1:1" title="Square (1:1)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg></button>
+                           <button class="visual-selector-button" data-value="3:4" title="Portrait (3:4)"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"></rect></svg></button>
+                           <button class="visual-selector-button" data-value="4:3" title="Landscape (4:3)"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect></svg></button>
+                           <button class="visual-selector-button" data-value="16:9" title="Widescreen (16:9)"><svg viewBox="0 0 24 24"><rect x="1" y="6" width="22" height="12" rx="2"></rect></svg></button>
+                           <button class="visual-selector-button" data-value="9:16" title="Tall (9:16)"><svg viewBox="0 0 24 24"><rect x="6" y="1" width="12" height="22" rx="2"></rect></svg></button>
+                        </div>
+                      </div>
+                      <div class="control-group">
+                        <label class="control-label-small">Number of Images</label>
+                        <div id="num-images-selector" class="visual-selector">
+                           <button class="visual-selector-button" data-value="1">1</button>
+                           <button class="visual-selector-button" data-value="2">2</button>
+                           <button class="visual-selector-button active" data-value="3">3</button>
+                           <button class="visual-selector-button" data-value="4">4</button>
+                        </div>
+                      </div>
+                   </div>
+                </details>
+
+                <button id="generate-button">Generate</button>
+              </div>
+            </div>
+
+            <div id="history-content" class="tab-content">
+              <div class="history-header">
+                <h3>Generation History</h3>
+                <button id="clear-history-button" title="Clear all history">Clear All</button>
+              </div>
+              <div id="history-list">
+                <!-- History items will be injected here by JS -->
+              </div>
+            </div>
+        </aside>
+        <section id="gallery-section">
+            <div id="image-gallery">
+                <div id="gallery-welcome" class="gallery-info-message">
+                  <h2>Welcome to Tasweer Ai</h2>
+                  <p>Start by typing a prompt in the panel on the left. Adjust the settings to your liking and click "Generate" to see the magic happen.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
